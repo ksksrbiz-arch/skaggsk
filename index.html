@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LibreSprite Skills — Pixel Art Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --panel: #151528;
+    --border: #2a2a4a;
+    --accent: #00ffcc;
+    --accent2: #ff4d6d;
+    --accent3: #ffe066;
+    --text: #c8c8e8;
+    --dim: #666688;
+    --pixel: 3px;
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘VT323’, monospace;
+font-size: 18px;
+line-height: 1.5;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Scanline overlay */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+pointer-events: none;
+z-index: 9999;
+}
+
+/* CRT glow */
+body::after {
+content: ‘’;
+position: fixed;
+inset: 0;
+background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,0.6) 100%);
+pointer-events: none;
+z-index: 9998;
+}
+
+header {
+border-bottom: 3px solid var(–accent);
+padding: 2rem;
+position: relative;
+background: linear-gradient(180deg, rgba(0,255,204,0.05) 0%, transparent 100%);
+}
+
+.header-inner {
+max-width: 1100px;
+margin: 0 auto;
+display: flex;
+align-items: center;
+gap: 2rem;
+}
+
+.logo-sprite {
+width: 64px;
+height: 64px;
+flex-shrink: 0;
+}
+
+.title-block h1 {
+font-family: ‘Press Start 2P’, monospace;
+font-size: clamp(0.7rem, 2vw, 1rem);
+color: var(–accent);
+text-shadow: 0 0 20px rgba(0,255,204,0.5), 2px 2px 0 #004433;
+letter-spacing: 0.05em;
+line-height: 1.6;
+}
+
+.title-block p {
+color: var(–dim);
+font-size: 16px;
+margin-top: 0.5rem;
+}
+
+.badge {
+display: inline-block;
+background: var(–accent2);
+color: #fff;
+font-family: ‘Press Start 2P’, monospace;
+font-size: 0.4rem;
+padding: 4px 8px;
+margin-left: 0.5rem;
+vertical-align: middle;
+}
+
+.main {
+max-width: 1100px;
+margin: 0 auto;
+padding: 2rem;
+display: grid;
+gap: 2rem;
+}
+
+/* Section headers */
+.section-label {
+font-family: ‘Press Start 2P’, monospace;
+font-size: 0.55rem;
+color: var(–accent3);
+letter-spacing: 0.1em;
+margin-bottom: 1rem;
+padding-bottom: 0.5rem;
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.section-label::before {
+content: ‘▶’;
+color: var(–accent2);
+}
+
+/* Panel style */
+.panel {
+background: var(–panel);
+border: 2px solid var(–border);
+padding: 1.5rem;
+position: relative;
+}
+
+.panel::before {
+content: ‘’;
+position: absolute;
+top: -2px; left: -2px; right: -2px; bottom: -2px;
+border: 1px solid rgba(0,255,204,0.1);
+pointer-events: none;
+}
+
+/* ============================================================
+ANIMATED SPRITE SHOWCASE
+============================================================ */
+.sprite-showcase {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+gap: 1.5rem;
+}
+
+.sprite-card {
+background: #0a0a18;
+border: 2px solid var(–border);
+padding: 1rem;
+text-align: center;
+transition: border-color 0.2s;
+cursor: default;
+}
+
+.sprite-card:hover {
+border-color: var(–accent);
+box-shadow: 0 0 12px rgba(0,255,204,0.15);
+}
+
+.sprite-display {
+width: 100%;
+aspect-ratio: 1;
+max-width: 96px;
+margin: 0 auto 0.75rem;
+display: block;
+image-rendering: pixelated;
+}
+
+.sprite-name {
+font-family: ‘Press Start 2P’, monospace;
+font-size: 0.4rem;
+color: var(–accent);
+margin-bottom: 0.25rem;
+}
+
+.sprite-meta {
+font-size: 13px;
+color: var(–dim);
+}
+
+/* ============================================================
+PIXEL CANVAS EDITOR
+============================================================ */
+.editor-layout {
+display: grid;
+grid-template-columns: auto 1fr auto;
+gap: 1rem;
+align-items: start;
+}
+
+@media (max-width: 700px) {
+.editor-layout { grid-template-columns: 1fr; }
+}
+
+.toolbox {
+background: #0a0a18;
+border: 2px solid var(–border);
+padding: 0.5rem;
+display: flex;
+flex-direction: column;
+gap: 0.25rem;
+min-width: 44px;
+}
+
+.tool-btn {
+width: 36px;
+height: 36px;
+background: transparent;
+border: 1px solid var(–border);
+color: var(–text);
+cursor: pointer;
+font-size: 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.1s;
+font-family: inherit;
+padding: 0;
+}
+
+.tool-btn:hover, .tool-btn.active {
+background: var(–accent);
+color: #000;
+border-color: var(–accent);
+}
+
+.tool-divider {
+height: 1px;
+background: var(–border);
+margin: 4px 0;
+}
+
+.canvas-wrap {
+display: flex;
+flex-direction: column;
+gap: 0.5rem;
+align-items: center;
+}
+
+.canvas-container {
+position: relative;
+cursor: crosshair;
+border: 2px solid var(–border);
+image-rendering: pixelated;
+}
+
+canvas {
+display: block;
+image-rendering: pixelated;
+}
+
+.canvas-overlay {
+position: absolute;
+top: 0; left: 0;
+pointer-events: none;
+image-rendering: pixelated;
+}
+
+.canvas-info {
+font-size: 13px;
+color: var(–dim);
+display: flex;
+gap: 1rem;
+}
+
+.canvas-info span { color: var(–accent); }
+
+/* Frames strip */
+.frames-strip {
+display: flex;
+gap: 4px;
+background: #0a0a18;
+border: 2px solid var(–border);
+padding: 4px;
+overflow-x: auto;
+}
+
+.frame-thumb {
+width: 48px;
+height: 48px;
+border: 2px solid var(–border);
+cursor: pointer;
+flex-shrink: 0;
+image-rendering: pixelated;
+background: #000;
+}
+
+.frame-thumb.active {
+border-color: var(–accent);
+box-shadow: 0 0 6px rgba(0,255,204,0.4);
+}
+
+.frame-add {
+width: 48px;
+height: 48px;
+border: 2px dashed var(–border);
+background: transparent;
+color: var(–dim);
+cursor: pointer;
+font-size: 24px;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+transition: all 0.15s;
+}
+
+.frame-add:hover {
+border-color: var(–accent);
+color: var(–accent);
+}
+
+/* Right panel: palette + layers */
+.side-panel {
+display: flex;
+flex-direction: column;
+gap: 1rem;
+min-width: 160px;
+}
+
+.palette-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 3px;
+background: #0a0a18;
+border: 2px solid var(–border);
+padding: 6px;
+}
+
+.pal-color {
+width: 28px;
+height: 28px;
+border: 1px solid transparent;
+cursor: pointer;
+transition: transform 0.1s;
+}
+
+.pal-color:hover { transform: scale(1.15); border-color: #fff; }
+.pal-color.selected { border: 2px solid #fff; outline: 1px solid var(–accent); }
+
+.current-color-display {
+height: 24px;
+border: 2px solid var(–border);
+margin-top: 4px;
+display: flex;
+align-items: center;
+font-size: 12px;
+padding: 0 6px;
+gap: 6px;
+}
+
+.color-swatch {
+width: 16px;
+height: 16px;
+border: 1px solid #fff;
+flex-shrink: 0;
+}
+
+/* Layers */
+.layers-panel {
+background: #0a0a18;
+border: 2px solid var(–border);
+padding: 6px;
+}
+
+.layers-label {
+font-family: ‘Press Start 2P’, monospace;
+font-size: 0.35rem;
+color: var(–dim);
+margin-bottom: 6px;
+}
+
+.layer-row {
+display: flex;
+align-items: center;
+gap: 4px;
+padding: 4px 6px;
+border: 1px solid transparent;
+cursor: pointer;
+font-size: 13px;
+transition: background 0.1s;
+}
+
+.layer-row:hover { background: rgba(0,255,204,0.05); }
+.layer-row.active { border-color: var(–accent); background: rgba(0,255,204,0.05); }
+
+.layer-eye { color: var(–accent); font-size: 12px; }
+.layer-name { flex: 1; }
+.layer-opacity { color: var(–dim); font-size: 12px; }
+
+/* Onion skin toggle */
+.toggle-row {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 13px;
+}
+
+.toggle {
+width: 32px;
+height: 16px;
+background: var(–border);
+border-radius: 0;
+position: relative;
+cursor: pointer;
+transition: background 0.2s;
+border: 1px solid var(–dim);
+}
+
+.toggle.on { background: var(–accent); border-color: var(–accent); }
+
+.toggle::after {
+content: ‘’;
+position: absolute;
+top: 2px; left: 2px;
+width: 10px; height: 10px;
+background: #fff;
+transition: transform 0.2s;
+}
+
+.toggle.on::after { transform: translateX(16px); }
+
+/* Playback controls */
+.playback {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+padding: 8px 0;
+flex-wrap: wrap;
+}
+
+.pb-btn {
+background: var(–panel);
+border: 2px solid var(–border);
+color: var(–text);
+padding: 6px 12px;
+cursor: pointer;
+font-family: ‘VT323’, monospace;
+font-size: 16px;
+transition: all 0.1s;
+}
+
+.pb-btn:hover, .pb-btn.active {
+background: var(–accent2);
+border-color: var(–accent2);
+color: #fff;
+}
+
+.fps-display {
+font-size: 14px;
+color: var(–dim);
+}
+
+.fps-display span { color: var(–accent3); }
+
+/* ============================================================
+SKILL STATS
+============================================================ */
+.skills-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 1rem;
+}
+
+.skill-row {
+margin-bottom: 0.75rem;
+}
+
+.skill-label {
+display: flex;
+justify-content: space-between;
+font-size: 14px;
+margin-bottom: 4px;
+}
+
+.skill-label span:last-child { color: var(–accent); }
+
+.skill-bar-bg {
+height: 12px;
+background: #0a0a18;
+border: 1px solid var(–border);
+position: relative;
+overflow: hidden;
+}
+
+.skill-bar-fill {
+height: 100%;
+background: var(–accent);
+animation: barFill 1.5s ease-out forwards;
+width: 0%;
+transition: width 1.5s ease-out;
+}
+
+.skill-bar-fill.red { background: var(–accent2); }
+.skill-bar-fill.yellow { background: var(–accent3); }
+
+@keyframes barFill { from { width: 0% } }
+
+/* ============================================================
+EXPORT / WORKFLOW
+============================================================ */
+.workflow-steps {
+display: flex;
+gap: 0;
+align-items: stretch;
+flex-wrap: wrap;
+}
+
+.wf-step {
+flex: 1;
+min-width: 120px;
+background: #0a0a18;
+border: 2px solid var(–border);
+padding: 1rem;
+text-align: center;
+position: relative;
+}
+
+.wf-step + .wf-step { margin-left: -2px; }
+
+.wf-step:hover { border-color: var(–accent); z-index: 1; }
+
+.wf-icon {
+font-size: 28px;
+display: block;
+margin-bottom: 0.5rem;
+}
+
+.wf-title {
+font-family: ‘Press Start 2P’, monospace;
+font-size: 0.35rem;
+color: var(–accent3);
+margin-bottom: 0.25rem;
+}
+
+.wf-desc {
+font-size: 13px;
+color: var(–dim);
+line-height: 1.3;
+}
+
+/* ============================================================
+STATUS BAR
+============================================================ */
+.status-bar {
+position: fixed;
+bottom: 0; left: 0; right: 0;
+background: var(–panel);
+border-top: 2px solid var(–border);
+padding: 6px 2rem;
+display: flex;
+gap: 2rem;
+font-size: 13px;
+color: var(–dim);
+z-index: 100;
+}
+
+.status-bar .green { color: var(–accent); }
+.status-bar .red { color: var(–accent2); }
+
+/* Blink */
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.blink { animation: blink 1s steps(1) infinite; }
+
+/* Pixel font headings */
+.px-h {
+font-family: ‘Press Start 2P’, monospace;
+font-size: 0.45rem;
+line-height: 1.8;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+header, .main { padding: 1rem; }
+.header-inner { flex-direction: column; gap: 1rem; }
+}
+
+/* ============================================================
+GRID OVERLAY for canvas
+============================================================ */
+.grid-visible .canvas-overlay { opacity: 1; }
+.grid-hidden .canvas-overlay { opacity: 0; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <canvas class="logo-sprite" id="logoCanvas" width="64" height="64"></canvas>
+    <div class="title-block">
+      <h1>LIBRESPRITE<br>SKILL PORTFOLIO<span class="badge">v1.3</span></h1>
+      <p>Pixel art · Sprite animation · Palette management · Layer workflow</p>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ANIMATED SPRITES -->
+
+  <div class="panel">
+    <div class="section-label">SPRITE ANIMATIONS — LIBRESPRITE EXPORTS</div>
+    <div class="sprite-showcase">
+      <div class="sprite-card">
+        <canvas class="sprite-display" id="sprWalk" width="96" height="96"></canvas>
+        <div class="sprite-name">WALK CYCLE</div>
+        <div class="sprite-meta">8 frames · 12fps</div>
+      </div>
+      <div class="sprite-card">
+        <canvas class="sprite-display" id="sprIdle" width="96" height="96"></canvas>
+        <div class="sprite-name">IDLE BREATHE</div>
+        <div class="sprite-meta">4 frames · 6fps</div>
+      </div>
+      <div class="sprite-card">
+        <canvas class="sprite-display" id="sprExplosion" width="96" height="96"></canvas>
+        <div class="sprite-name">EXPLOSION FX</div>
+        <div class="sprite-meta">6 frames · 18fps</div>
+      </div>
+      <div class="sprite-card">
+        <canvas class="sprite-display" id="sprCoin" width="96" height="96"></canvas>
+        <div class="sprite-name">COIN SPIN</div>
+        <div class="sprite-meta">6 frames · 10fps</div>
+      </div>
+      <div class="sprite-card">
+        <canvas class="sprite-display" id="sprFire" width="96" height="96"></canvas>
+        <div class="sprite-name">FIRE LOOP</div>
+        <div class="sprite-meta">5 frames · 14fps</div>
+      </div>
+      <div class="sprite-card">
+        <canvas class="sprite-display" id="sprSlash" width="96" height="96"></canvas>
+        <div class="sprite-name">SWORD SLASH</div>
+        <div class="sprite-meta">5 frames · 20fps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIXEL EDITOR -->
+
+  <div class="panel">
+    <div class="section-label">INTERACTIVE PIXEL EDITOR — LIVE DEMO</div>
+    <div class="editor-layout">
+
+```
+  <!-- Toolbox -->
+  <div class="toolbox">
+    <button class="tool-btn active" id="toolPencil" title="Pencil (B)">✏️</button>
+    <button class="tool-btn" id="toolEraser" title="Eraser (E)">⬜</button>
+    <button class="tool-btn" id="toolFill" title="Fill (F)">🪣</button>
+    <button class="tool-btn" id="toolEyedrop" title="Eyedropper (I)">💉</button>
+    <div class="tool-divider"></div>
+    <button class="tool-btn" id="toolGrid" title="Toggle Grid">⊞</button>
+    <button class="tool-btn" id="toolClear" title="Clear">🗑️</button>
+  </div>
+
+  <!-- Canvas area -->
+  <div class="canvas-wrap">
+    <div class="canvas-container grid-visible" id="canvasContainer">
+      <canvas id="pixelCanvas" width="320" height="320"></canvas>
+      <canvas class="canvas-overlay" id="gridCanvas" width="320" height="320"></canvas>
+    </div>
+    <div class="canvas-info">
+      Cursor: <span id="cursorPos">—</span> &nbsp;|&nbsp;
+      Color: <span id="activeColorHex">#00ffcc</span> &nbsp;|&nbsp;
+      Tool: <span id="activeTool">Pencil</span>
+    </div>
+    <!-- Frame strip -->
+    <div style="width:100%">
+      <div style="font-family:'Press Start 2P',monospace;font-size:0.35rem;color:var(--dim);margin-bottom:4px;">FRAMES</div>
+      <div class="frames-strip" id="framesStrip">
+        <canvas class="frame-thumb active" id="frame0" width="48" height="48"></canvas>
+        <canvas class="frame-thumb" id="frame1" width="48" height="48"></canvas>
+        <canvas class="frame-thumb" id="frame2" width="48" height="48"></canvas>
+        <button class="frame-add" id="addFrame">+</button>
+      </div>
+      <div class="playback">
+        <button class="pb-btn" id="btnPlay">▶ PLAY</button>
+        <button class="pb-btn" id="btnStop">■ STOP</button>
+        <div class="fps-display">FPS: <span id="fpsVal">8</span></div>
+        <input type="range" min="1" max="24" value="8" id="fpsSlider" style="width:80px;accent-color:var(--accent)">
+        <div class="toggle-row">
+          <div class="toggle" id="onionToggle"></div>
+          <span style="font-size:13px;color:var(--dim)">Onion Skin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="side-panel">
+    <!-- Palette -->
+    <div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:0.35rem;color:var(--dim);margin-bottom:4px;">PALETTE — DB16</div>
+      <div class="palette-grid" id="paletteGrid"></div>
+      <div class="current-color-display">
+        <div class="color-swatch" id="colorSwatch"></div>
+        <span id="swatchHex" style="font-size:12px;color:var(--dim)">#00ffcc</span>
+      </div>
+    </div>
+
+    <!-- Layers -->
+    <div class="layers-panel">
+      <div class="layers-label">LAYERS</div>
+      <div class="layer-row active" data-layer="0">
+        <span class="layer-eye">👁</span>
+        <span class="layer-name">Foreground</span>
+        <span class="layer-opacity">100%</span>
+      </div>
+      <div class="layer-row" data-layer="1">
+        <span class="layer-eye">👁</span>
+        <span class="layer-name">Background</span>
+        <span class="layer-opacity">80%</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+```
+
+  </div>
+
+  <!-- SKILL STATS -->
+
+  <div class="panel">
+    <div class="section-label">LIBRESPRITE FEATURE PROFICIENCY</div>
+    <div class="skills-grid">
+      <div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Sprite Animation / Frames</span><span>95%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:95%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Palette Management</span><span>92%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:92%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Layer Compositing</span><span>88%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:88%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Onion Skinning</span><span>90%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:90%"></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Pixel-Perfect Line Art</span><span>94%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill red" style="width:94%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Indexed Color Mode</span><span>85%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill red" style="width:85%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Sprite Sheet Export</span><span>96%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill red" style="width:96%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Script / Automation</span><span>78%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill red" style="width:78%"></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Tilemaps / Grids</span><span>87%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill yellow" style="width:87%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Color Replacement</span><span>91%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill yellow" style="width:91%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>GIF / PNG Export</span><span>98%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill yellow" style="width:98%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label"><span>Game Asset Pipeline</span><span>83%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill yellow" style="width:83%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKFLOW -->
+
+  <div class="panel">
+    <div class="section-label">PRODUCTION WORKFLOW</div>
+    <div class="workflow-steps">
+      <div class="wf-step">
+        <span class="wf-icon">🎨</span>
+        <div class="wf-title">CONCEPT</div>
+        <div class="wf-desc">Sketch pixel grid, define palette constraints (8–32 colors)</div>
+      </div>
+      <div class="wf-step">
+        <span class="wf-icon">🖊️</span>
+        <div class="wf-title">LINEWORK</div>
+        <div class="wf-desc">Pixel-perfect outlines on dedicated layer, minimize jaggies</div>
+      </div>
+      <div class="wf-step">
+        <span class="wf-icon">🪣</span>
+        <div class="wf-title">BASE FILL</div>
+        <div class="wf-desc">Flood fill flat colors using indexed palette, no anti-aliasing</div>
+      </div>
+      <div class="wf-step">
+        <span class="wf-icon">💡</span>
+        <div class="wf-title">SHADING</div>
+        <div class="wf-desc">1–3 shade bands per hue, dithering for gradients</div>
+      </div>
+      <div class="wf-step">
+        <span class="wf-icon">🎬</span>
+        <div class="wf-title">ANIMATE</div>
+        <div class="wf-desc">Frame-by-frame with onion skin, timing via ms/frame</div>
+      </div>
+      <div class="wf-step">
+        <span class="wf-icon">📦</span>
+        <div class="wf-title">EXPORT</div>
+        <div class="wf-desc">Sprite sheet JSON + PNG, GIF preview, indexed PNG assets</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="status-bar">
+  <span class="green">● READY</span>
+  <span>LibreSprite v1.3-dev</span>
+  <span id="statusMsg">Canvas: 16×16 px · Scale: 20x</span>
+  <span class="blink">_</span>
+</div>
+
+<script>
+// ================================================================
+//  PALETTE — DB16 (DawnBringer 16)
+// ================================================================
+const DB16 = [
+  '#140c1c','#442434','#30346d','#4e4a4e',
+  '#854c30','#346524','#d04648','#757161',
+  '#597dce','#d27d2c','#8595a1','#6daa2c',
+  '#d2aa99','#6dc2ca','#dad45e','#deeed6'
+];
+
+// Active state
+let activeTool = 'pencil';
+let activeColor = '#00ffcc';
+let isDrawing = false;
+let onionSkin = false;
+let currentFrame = 0;
+let isPlaying = false;
+let playInterval = null;
+const CANVAS_SIZE = 320;
+const GRID = 20; // 16x16 pixels
+const PIXEL = CANVAS_SIZE / GRID;
+
+// Frame data: 3 frames of 16x16
+const frameData = [
+  new Array(GRID * GRID).fill(null),
+  new Array(GRID * GRID).fill(null),
+  new Array(GRID * GRID).fill(null)
+];
+
+// ================================================================
+//  LOGO ANIMATION (top left)
+// ================================================================
+const logoCtx = document.getElementById('logoCanvas').getContext('2d');
+(function logoAnim() {
+  let t = 0;
+  const cols = ['#00ffcc','#ff4d6d','#ffe066','#597dce','#6daa2c'];
+  // draw a little pixel art brush icon
+  function draw() {
+    logoCtx.clearRect(0,0,64,64);
+    const pixels = [
+      [8,4],[8,5],[8,6],
+      [4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],
+      [6,9],[7,9],[8,9],[9,10],[8,10],[7,10],
+      [6,11],[7,11],
+      [5,12],[6,12],
+      [4,13],[5,13],
+      [3,14],[4,14],
+      [2,15],[3,15],
+    ];
+    // palette squares
+    const pals = [[1,1],[3,1],[5,1],[7,1],[1,3],[3,3],[5,3],[7,3]];
+    pals.forEach((p,i) => {
+      logoCtx.fillStyle = cols[i % cols.length];
+      logoCtx.fillRect(p[0]*4, p[1]*4, 4, 4);
+    });
+    const bx = 4 + Math.floor(Math.sin(t)*2);
+    pixels.forEach((p,i) => {
+      logoCtx.fillStyle = cols[Math.floor((i+t*2) % cols.length)];
+      logoCtx.fillRect((p[0]+bx)*2, p[1]*2, 2, 2);
+    });
+    t += 0.05;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ================================================================
+//  PALETTE UI
+// ================================================================
+const paletteGrid = document.getElementById('paletteGrid');
+DB16.forEach(c => {
+  const d = document.createElement('div');
+  d.className = 'pal-color';
+  d.style.background = c;
+  d.addEventListener('click', () => {
+    document.querySelectorAll('.pal-color').forEach(x=>x.classList.remove('selected'));
+    d.classList.add('selected');
+    activeColor = c;
+    document.getElementById('colorSwatch').style.background = c;
+    document.getElementById('swatchHex').textContent = c;
+    document.getElementById('activeColorHex').textContent = c;
+    if (activeTool === 'eraser') setTool('pencil');
+  });
+  paletteGrid.appendChild(d);
+});
+// set first as default
+paletteGrid.children[14].classList.add('selected'); // dad45e yellowish
+activeColor = DB16[14];
+document.getElementById('colorSwatch').style.background = activeColor;
+document.getElementById('swatchHex').textContent = activeColor;
+document.getElementById('activeColorHex').textContent = activeColor;
+
+// ================================================================
+//  PIXEL CANVAS
+// ================================================================
+const pixelCanvas = document.getElementById('pixelCanvas');
+const ctx = pixelCanvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+const gridCanvas = document.getElementById('gridCanvas');
+const gctx = gridCanvas.getContext('2d');
+
+function drawGrid() {
+  gctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+  gctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  gctx.lineWidth = 0.5;
+  for (let x=0; x<=GRID; x++) {
+    gctx.beginPath();
+    gctx.moveTo(x*PIXEL,0); gctx.lineTo(x*PIXEL,CANVAS_SIZE);
+    gctx.stroke();
+  }
+  for (let y=0; y<=GRID; y++) {
+    gctx.beginPath();
+    gctx.moveTo(0,y*PIXEL); gctx.lineTo(CANVAS_SIZE,y*PIXEL);
+    gctx.stroke();
+  }
+}
+drawGrid();
+
+function renderFrame(frameIdx, targetCtx) {
+  targetCtx = targetCtx || ctx;
+  const W = targetCtx.canvas.width;
+  const H = targetCtx.canvas.height;
+  const pz = W / GRID;
+  targetCtx.clearRect(0,0,W,H);
+  // checkerboard bg
+  for (let y=0; y<GRID; y++) for (let x=0; x<GRID; x++) {
+    targetCtx.fillStyle = ((x+y)%2===0) ? '#1a1a2e' : '#141428';
+    targetCtx.fillRect(x*pz, y*pz, pz, pz);
+  }
+  // pixels
+  frameData[frameIdx].forEach((c,i) => {
+    if (!c) return;
+    const x = i % GRID;
+    const y = Math.floor(i / GRID);
+    targetCtx.fillStyle = c;
+    targetCtx.fillRect(x*pz, y*pz, pz, pz);
+  });
+}
+
+function renderOnion() {
+  if (!onionSkin) return;
+  const prevIdx = (currentFrame - 1 + frameData.length) % frameData.length;
+  frameData[prevIdx].forEach((c,i) => {
+    if (!c) return;
+    const x = i % GRID, y = Math.floor(i / GRID);
+    ctx.fillStyle = c + '44';
+    ctx.fillRect(x*PIXEL, y*PIXEL, PIXEL, PIXEL);
+  });
+}
+
+function fullRender() {
+  renderFrame(currentFrame);
+  renderOnion();
+}
+
+fullRender();
+
+// Thumbnail render
+function renderThumb(frameIdx) {
+  const thumb = document.getElementById('frame' + frameIdx);
+  if (!thumb) return;
+  const tc = thumb.getContext('2d');
+  renderFrame(frameIdx, tc);
+}
+
+function getPixelCoord(e) {
+  const rect = pixelCanvas.getBoundingClientRect();
+  const scaleX = CANVAS_SIZE / rect.width;
+  const scaleY = CANVAS_SIZE / rect.height;
+  const cx = (e.clientX - rect.left) * scaleX;
+  const cy = (e.clientY - rect.top) * scaleY;
+  return { px: Math.floor(cx / PIXEL), py: Math.floor(cy / PIXEL) };
+}
+
+function putPixel(px, py, color) {
+  if (px < 0 || px >= GRID || py < 0 || py >= GRID) return;
+  const idx = py * GRID + px;
+  frameData[currentFrame][idx] = color;
+}
+
+function floodFill(px, py, targetColor, fillColor) {
+  if (px < 0 || px >= GRID || py < 0 || py >= GRID) return;
+  const idx = py * GRID + px;
+  const cur = frameData[currentFrame][idx];
+  if (cur === fillColor) return;
+  if (cur !== targetColor) return;
+  frameData[currentFrame][idx] = fillColor;
+  floodFill(px+1,py,targetColor,fillColor);
+  floodFill(px-1,py,targetColor,fillColor);
+  floodFill(px,py+1,targetColor,fillColor);
+  floodFill(px,py-1,targetColor,fillColor);
+}
+
+function handleDraw(e) {
+  e.preventDefault();
+  const {px, py} = getPixelCoord(e);
+  if (px < 0 || px >= GRID || py < 0 || py >= GRID) return;
+
+  if (activeTool === 'pencil') {
+    putPixel(px, py, activeColor);
+  } else if (activeTool === 'eraser') {
+    putPixel(px, py, null);
+  } else if (activeTool === 'fill' && !isDrawing) {
+    const target = frameData[currentFrame][py*GRID+px];
+    floodFill(px, py, target, activeColor);
+  } else if (activeTool === 'eyedrop' && !isDrawing) {
+    const c = frameData[currentFrame][py*GRID+px];
+    if (c) {
+      activeColor = c;
+      document.getElementById('colorSwatch').style.background = c;
+      document.getElementById('swatchHex').textContent = c;
+      document.getElementById('activeColorHex').textContent = c;
+    }
+    return;
+  }
+  fullRender();
+  renderThumb(currentFrame);
+}
+
+pixelCanvas.addEventListener('mousedown', e => {
+  isDrawing = true;
+  handleDraw(e);
+});
+pixelCanvas.addEventListener('mousemove', e => {
+  const {px,py} = getPixelCoord(e);
+  document.getElementById('cursorPos').textContent = `${px}, ${py}`;
+  if (isDrawing) handleDraw(e);
+});
+pixelCanvas.addEventListener('mouseup', () => isDrawing = false);
+pixelCanvas.addEventListener('mouseleave', () => {
+  isDrawing = false;
+  document.getElementById('cursorPos').textContent = '—';
+});
+
+// Touch support
+pixelCanvas.addEventListener('touchstart', e => {
+  isDrawing = true;
+  handleDraw(e.touches[0]);
+}, {passive:false});
+pixelCanvas.addEventListener('touchmove', e => {
+  if (isDrawing) handleDraw(e.touches[0]);
+  e.preventDefault();
+}, {passive:false});
+pixelCanvas.addEventListener('touchend', () => isDrawing = false);
+
+// ================================================================
+//  TOOLS
+// ================================================================
+function setTool(t) {
+  activeTool = t;
+  ['Pencil','toolPencil','toolEraser','toolFill','toolEyedrop'].forEach(id=>{});
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+  const map = {pencil:'toolPencil',eraser:'toolEraser',fill:'toolFill',eyedrop:'toolEyedrop'};
+  if (map[t]) document.getElementById(map[t]).classList.add('active');
+  const names = {pencil:'Pencil',eraser:'Eraser',fill:'Fill Bucket',eyedrop:'Eyedropper'};
+  document.getElementById('activeTool').textContent = names[t] || t;
+}
+
+document.getElementById('toolPencil').onclick = () => setTool('pencil');
+document.getElementById('toolEraser').onclick = () => setTool('eraser');
+document.getElementById('toolFill').onclick = () => setTool('fill');
+document.getElementById('toolEyedrop').onclick = () => setTool('eyedrop');
+
+let gridVisible = true;
+document.getElementById('toolGrid').onclick = () => {
+  gridVisible = !gridVisible;
+  document.getElementById('canvasContainer').className = 'canvas-container ' + (gridVisible ? 'grid-visible' : 'grid-hidden');
+  document.getElementById('toolGrid').classList.toggle('active', gridVisible);
+};
+
+document.getElementById('toolClear').onclick = () => {
+  frameData[currentFrame].fill(null);
+  fullRender();
+  renderThumb(currentFrame);
+};
+
+// ================================================================
+//  FRAMES
+// ================================================================
+document.querySelectorAll('.frame-thumb').forEach((f,i) => {
+  f.addEventListener('click', () => {
+    document.querySelectorAll('.frame-thumb').forEach(x=>x.classList.remove('active'));
+    f.classList.add('active');
+    currentFrame = i;
+    fullRender();
+  });
+});
+
+document.getElementById('addFrame').onclick = () => {
+  if (frameData.length >= 8) return;
+  const newIdx = frameData.length;
+  frameData.push(new Array(GRID*GRID).fill(null));
+  const thumb = document.createElement('canvas');
+  thumb.id = 'frame' + newIdx;
+  thumb.className = 'frame-thumb';
+  thumb.width = 48; thumb.height = 48;
+  thumb.addEventListener('click', () => {
+    document.querySelectorAll('.frame-thumb').forEach(x=>x.classList.remove('active'));
+    thumb.classList.add('active');
+    currentFrame = newIdx;
+    fullRender();
+  });
+  document.getElementById('framesStrip').insertBefore(thumb, document.getElementById('addFrame'));
+};
+
+// ================================================================
+//  PLAYBACK
+// ================================================================
+document.getElementById('fpsSlider').oninput = function() {
+  document.getElementById('fpsVal').textContent = this.value;
+  if (isPlaying) { stopPlay(); startPlay(); }
+};
+
+function startPlay() {
+  isPlaying = true;
+  document.getElementById('btnPlay').classList.add('active');
+  const fps = parseInt(document.getElementById('fpsSlider').value);
+  playInterval = setInterval(() => {
+    currentFrame = (currentFrame + 1) % frameData.length;
+    document.querySelectorAll('.frame-thumb').forEach((f,i) => f.classList.toggle('active', i===currentFrame));
+    fullRender();
+  }, 1000/fps);
+}
+
+function stopPlay() {
+  isPlaying = false;
+  clearInterval(playInterval);
+  document.getElementById('btnPlay').classList.remove('active');
+}
+
+document.getElementById('btnPlay').onclick = () => { if (!isPlaying) startPlay(); else stopPlay(); };
+document.getElementById('btnStop').onclick = stopPlay;
+
+// ================================================================
+//  ONION SKIN
+// ================================================================
+document.getElementById('onionToggle').onclick = function() {
+  onionSkin = !onionSkin;
+  this.classList.toggle('on', onionSkin);
+  fullRender();
+};
+
+// ================================================================
+//  SPRITE ANIMATIONS — canvas-drawn pixel art
+// ================================================================
+
+// Color palettes per sprite
+const heroColors = {
+  skin:'#d2aa99', hair:'#442434', shirt:'#597dce',
+  pants:'#30346d', shoes:'#140c1c', outline:'#140c1c',
+  light:'#deeed6', shadow:'#4e4a4e'
+};
+
+function drawPixels(ctx, pixels, scale, ox, oy) {
+  pixels.forEach(([x,y,c]) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(ox + x*scale, oy + y*scale, scale, scale);
+  });
+}
+
+// --- Walk cycle (8 frames) ---
+(function() {
+  const canvas = document.getElementById('sprWalk');
+  const c = canvas.getContext('2d');
+  const S = 5, W = canvas.width, H = canvas.height;
+  const ox = (W - 9*S)/2, oy = (H - 16*S)/2;
+  const {skin,hair,shirt,pants,shoes,outline,light} = heroColors;
+
+  const frames = [
+    // frame 0
+    [[4,0,hair],[3,0,hair],[5,0,hair],[4,1,skin],[3,1,skin],[5,1,skin],[3,2,skin],[4,2,skin],[5,2,skin],[4,3,shirt],[3,3,shirt],[5,3,shirt],[3,4,shirt],[4,4,shirt],[5,4,shirt],[3,5,pants],[4,5,pants],[5,5,pants],[3,6,pants],[4,6,pants],[5,6,pants],[3,7,pants],[5,7,pants],[3,8,shoes],[5,8,shoes]],
+    // frame 1 - right leg forward
+    [[4,0,hair],[3,0,hair],[5,0,hair],[4,1,skin],[3,1,skin],[5,1,skin],[3,2,skin],[4,2,skin],[5,2,skin],[4,3,shirt],[3,3,shirt],[5,3,shirt],[3,4,shirt],[4,4,shirt],[5,4,shirt],[3,5,pants],[4,5,pants],[5,5,pants],[3,6,pants],[4,6,pants],[5,6,pants],[2,7,pants],[4,7,pants],[2,8,shoes],[4,8,shoes]],
+    // frame 2
+    [[4,0,hair],[3,0,hair],[5,0,hair],[4,1,skin],[3,1,skin],[5,1,skin],[3,2,skin],[4,2,skin],[5,2,skin],[3,3,shirt],[4,3,shirt],[5,3,shirt],[2,4,shirt],[3,4,shirt],[5,4,shirt],[6,4,shirt],[3,5,pants],[4,5,pants],[5,5,pants],[3,6,pants],[4,6,pants],[5,6,pants],[3,7,pants],[5,7,pants],[3,8,shoes],[5,8,shoes]],
+    // frame 3 - left leg forward
+    [[4,0,hair],[3,0,hair],[5,0,hair],[4,1,skin],[3,1,skin],[5,1,skin],[3,2,skin],[4,2,skin],[5,2,skin],[4,3,shirt],[3,3,shirt],[5,3,shirt],[3,4,shirt],[4,4,shirt],[5,4,shirt],[3,5,pants],[4,5,pants],[5,5,pants],[3,6,pants],[4,6,pants],[5,6,pants],[4,7,pants],[6,7,pants],[4,8,shoes],[6,8,shoes]],
+  ];
+  const allFrames = [...frames, ...frames.slice().reverse()];
+  let f = 0;
+  setInterval(() => {
+    c.clearRect(0,0,W,H);
+    drawPixels(c, allFrames[f % allFrames.length], S, ox, oy);
+    f++;
+  }, 1000/12);
+})();
+
+// --- Idle breathe ---
+(function() {
+  const canvas = document.getElementById('sprIdle');
+  const c = canvas.getContext('2d');
+  const S = 5, W = canvas.width, H = canvas.height;
+  const {skin,hair,shirt,pants,shoes} = heroColors;
+  const frames = [
+    [[4,1,hair],[3,1,hair],[5,1,hair],[4,2,skin],[3,2,skin],[5,2,skin],[4,3,shirt],[3,3,shirt],[5,3,shirt],[3,4,shirt],[4,4,shirt],[5,4,shirt],[3,5,pants],[4,5,pants],[5,5,pants],[3,7,shoes],[5,7,shoes]],
+    [[4,2,hair],[3,2,hair],[5,2,hair],[4,3,skin],[3,3,skin],[5,3,skin],[4,4,shirt],[3,4,shirt],[5,4,shirt],[3,5,shirt],[4,5,shirt],[5,5,shirt],[3,6,pants],[4,6,pants],[5,6,pants],[3,8,shoes],[5,8,shoes]],
+  ];
+  let f = 0;
+  setInterval(() => {
+    c.clearRect(0,0,W,H);
+    const ox = (W-9*S)/2, oy = (H-16*S)/3;
+    drawPixels(c, frames[f%frames.length], S, ox, oy);
+    f++;
+  }, 1000/6);
+})();
+
+// --- Explosion ---
+(function() {
+  const canvas = document.getElementById('sprExplosion');
+  const c = canvas.getContext('2d');
+  const S = 6, W = canvas.width, H = canvas.height;
+  const frames = [
+    [[7,7,'#d04648']],
+    [[7,7,'#d04648'],[6,7,'#d04648'],[8,7,'#d04648'],[7,6,'#d04648'],[7,8,'#d04648']],
+    [[7,7,'#ffe066'],[5,7,'#d04648'],[9,7,'#d04648'],[7,5,'#d04648'],[7,9,'#d04648'],[6,6,'#d27d2c'],[8,6,'#d27d2c'],[6,8,'#d27d2c'],[8,8,'#d27d2c']],
+    [[7,7,'#ffe066'],[4,7,'#d04648'],[10,7,'#d04648'],[7,4,'#d04648'],[7,10,'#d04648'],[5,5,'#d27d2c'],[9,5,'#d27d2c'],[5,9,'#d27d2c'],[9,9,'#d27d2c'],[6,6,'#ffe066'],[8,6,'#ffe066'],[6,8,'#ffe066'],[8,8,'#ffe066'],[3,7,'#8595a1'],[11,7,'#8595a1'],[7,3,'#8595a1'],[7,11,'#8595a1']],
+    [[4,4,'#8595a1'],[7,3,'#8595a1'],[10,4,'#8595a1'],[3,7,'#8595a1'],[11,7,'#8595a1'],[4,10,'#8595a1'],[7,11,'#8595a1'],[10,10,'#8595a1'],[5,5,'#d27d2c'],[9,5,'#d27d2c'],[5,9,'#d27d2c'],[9,9,'#d27d2c']],
+    [[3,3,'#4e4a4e'],[7,2,'#4e4a4e'],[11,3,'#4e4a4e'],[2,7,'#4e4a4e'],[12,7,'#4e4a4e'],[3,11,'#4e4a4e'],[7,12,'#4e4a4e'],[11,11,'#4e4a4e']],
+  ];
+  let f = 0;
+  setInterval(() => {
+    c.clearRect(0,0,W,H);
+    const ox = (W-14*S)/2, oy = (H-14*S)/2;
+    drawPixels(c, frames[f%frames.length], S, ox, oy);
+    f++;
+  }, 1000/18);
+})();
+
+// --- Coin spin ---
+(function() {
+  const canvas = document.getElementById('sprCoin');
+  const c = canvas.getContext('2d');
+  const S = 7, W = canvas.width, H = canvas.height;
+  const frames = [
+    [[3,1,'#ffe066'],[4,1,'#ffe066'],[5,1,'#ffe066'],[2,2,'#d27d2c'],[6,2,'#d27d2c'],[3,2,'#ffe066'],[4,2,'#ffe066'],[5,2,'#ffe066'],[2,3,'#d27d2c'],[3,3,'#ffe066'],[4,3,'#dad45e'],[5,3,'#ffe066'],[6,3,'#d27d2c'],[2,4,'#d27d2c'],[3,4,'#ffe066'],[4,4,'#dad45e'],[5,4,'#ffe066'],[6,4,'#d27d2c'],[2,5,'#d27d2c'],[3,5,'#ffe066'],[4,5,'#ffe066'],[5,5,'#ffe066'],[6,5,'#d27d2c'],[3,6,'#ffe066'],[4,6,'#ffe066'],[5,6,'#ffe066']],
+    [[3,1,'#ffe066'],[4,1,'#ffe066'],[5,1,'#ffe066'],[3,2,'#d27d2c'],[4,2,'#ffe066'],[5,2,'#d27d2c'],[3,3,'#d27d2c'],[4,3,'#dad45e'],[5,3,'#d27d2c'],[3,4,'#d27d2c'],[4,4,'#dad45e'],[5,4,'#d27d2c'],[3,5,'#d27d2c'],[4,5,'#ffe066'],[5,5,'#d27d2c'],[3,6,'#ffe066'],[4,6,'#ffe066'],[5,6,'#ffe066']],
+    [[4,1,'#ffe066'],[4,2,'#ffe066'],[4,3,'#dad45e'],[4,4,'#dad45e'],[4,5,'#ffe066'],[4,6,'#ffe066']],
+    [[3,1,'#ffe066'],[4,1,'#ffe066'],[5,1,'#ffe066'],[3,2,'#d27d2c'],[4,2,'#ffe066'],[5,2,'#d27d2c'],[3,3,'#d27d2c'],[4,3,'#dad45e'],[5,3,'#d27d2c'],[3,4,'#d27d2c'],[4,4,'#dad45e'],[5,4,'#d27d2c'],[3,5,'#d27d2c'],[4,5,'#ffe066'],[5,5,'#d27d2c'],[3,6,'#ffe066'],[4,6,'#ffe066'],[5,6,'#ffe066']],
+    [[3,1,'#ffe066'],[4,1,'#ffe066'],[5,1,'#ffe066'],[2,2,'#d27d2c'],[6,2,'#d27d2c'],[3,2,'#ffe066'],[4,2,'#ffe066'],[5,2,'#ffe066'],[2,3,'#d27d2c'],[3,3,'#ffe066'],[4,3,'#dad45e'],[5,3,'#ffe066'],[6,3,'#d27d2c'],[2,4,'#d27d2c'],[3,4,'#ffe066'],[4,4,'#dad45e'],[5,4,'#ffe066'],[6,4,'#d27d2c'],[2,5,'#d27d2c'],[3,5,'#ffe066'],[4,5,'#ffe066'],[5,5,'#ffe066'],[6,5,'#d27d2c'],[3,6,'#ffe066'],[4,6,'#ffe066'],[5,6,'#ffe066']],
+    [[3,1,'#ffe066'],[4,1,'#ffe066'],[5,1,'#ffe066'],[3,2,'#d27d2c'],[4,2,'#ffe066'],[5,2,'#d27d2c'],[3,3,'#d27d2c'],[4,3,'#dad45e'],[5,3,'#d27d2c'],[3,4,'#d27d2c'],[4,4,'#dad45e'],[5,4,'#d27d2c'],[3,5,'#d27d2c'],[4,5,'#ffe066'],[5,5,'#d27d2c'],[3,6,'#ffe066'],[4,6,'#ffe066'],[5,6,'#ffe066']],
+  ];
+  let f = 0;
+  setInterval(() => {
+    c.clearRect(0,0,W,H);
+    const ox = (W-9*S)/2, oy = (H-8*S)/2;
+    drawPixels(c, frames[f%frames.length], S, ox, oy);
+    f++;
+  }, 1000/10);
+})();
+
+// --- Fire loop ---
+(function() {
+  const canvas = document.getElementById('sprFire');
+  const c = canvas.getContext('2d');
+  const S = 6, W = canvas.width, H = canvas.height;
+  const R='#d04648', O='#d27d2c', Y='#ffe066', W2='#dad45e', D='#140c1c';
+  const frames = [
+    [[4,10,D],[3,10,D],[5,10,D],[4,9,R],[3,9,R],[5,9,R],[4,8,R],[3,8,O],[5,8,O],[4,7,O],[3,7,Y],[5,7,Y],[4,6,Y],[4,5,W2]],
+    [[4,10,D],[3,10,D],[5,10,D],[4,9,R],[3,9,R],[5,9,R],[4,8,O],[3,8,R],[5,8,R],[4,7,Y],[3,7,O],[5,7,O],[4,6,W2],[5,6,Y],[4,5,Y]],
+    [[4,10,D],[3,10,D],[5,10,D],[4,9,R],[3,9,R],[5,9,R],[4,8,R],[3,8,O],[5,8,R],[3,7,R],[4,7,O],[5,7,O],[4,6,Y],[3,6,Y],[4,5,W2]],
+    [[4,10,D],[3,10,D],[5,10,D],[4,9,R],[3,9,O],[5,9,R],[4,8,O],[3,8,R],[5,8,O],[4,7,Y],[4,6,O],[5,6,Y],[4,5,Y],[4,4,W2]],
+    [[4,10,D],[3,10,D],[5,10,D],[4,9,R],[3,9,R],[5,9,O],[4,8,R],[3,8,O],[5,8,R],[4,7,O],[3,7,Y],[5,7,O],[4,6,Y],[4,5,W2]],
+  ];
+  let f = 0;
+  setInterval(() => {
+    c.clearRect(0,0,W,H);
+    const ox = (W-9*S)/2, oy = (H-12*S)/2;
+    drawPixels(c, frames[f%frames.length], S, ox, oy);
+    f++;
+  }, 1000/14);
+})();
+
+// --- Sword slash ---
+(function() {
+  const canvas = document.getElementById('sprSlash');
+  const c = canvas.getContext('2d');
+  const S = 6, W = canvas.width, H = canvas.height;
+  const B='#8595a1', L='#deeed6', D='#442434', Y='#ffe066', T='transparent';
+  const frames = [
+    [[5,10,D],[6,9,D],[7,8,B],[8,7,B],[9,6,L],[10,5,L]],
+    [[4,9,D],[5,8,B],[6,7,B],[7,6,L],[8,5,L],[9,4,Y],[10,3,Y]],
+    [[3,8,D],[4,7,B],[5,6,B],[6,5,L],[7,4,L],[8,3,Y],[9,2,Y],[10,3,Y],[9,4,Y],[8,5,Y]],
+    [[2,7,D],[3,7,B],[4,6,B],[5,5,L],[6,4,Y],[7,3,Y],[8,2,Y],[9,2,Y],[8,3,Y],[7,4,L]],
+    [[2,6,D],[3,6,B],[4,5,B],[5,4,L],[6,3,Y],[7,3,Y],[6,4,Y],[5,5,Y]],
+  ];
+  let f = 0;
+  setInterval(() => {
+    c.clearRect(0,0,W,H);
+    const ox = (W-12*S)/2, oy = (H-12*S)/2;
+    drawPixels(c, frames[f%frames.length], S, ox, oy);
+    f++;
+  }, 1000/20);
+})();
+
+// ================================================================
+//  DRAW a default smiley on frame 0 so canvas isn't empty
+// ================================================================
+const defaultArt = [
+  [5,2,'#ffe066'],[6,2,'#ffe066'],[7,2,'#ffe066'],[8,2,'#ffe066'],[9,2,'#ffe066'],[10,2,'#ffe066'],
+  [4,3,'#ffe066'],[11,3,'#ffe066'],
+  [3,4,'#ffe066'],[12,4,'#ffe066'],
+  [3,5,'#ffe066'],[12,5,'#ffe066'],
+  [3,6,'#ffe066'],[6,6,'#140c1c'],[9,6,'#140c1c'],[12,6,'#ffe066'],
+  [3,7,'#ffe066'],[12,7,'#ffe066'],
+  [3,8,'#ffe066'],[12,8,'#ffe066'],
+  [3,9,'#ffe066'],[6,9,'#140c1c'],[7,9,'#140c1c'],[8,9,'#140c1c'],[9,9,'#140c1c'],[12,9,'#ffe066'],
+  [4,10,'#ffe066'],[11,10,'#ffe066'],
+  [5,11,'#ffe066'],[6,11,'#ffe066'],[7,11,'#ffe066'],[8,11,'#ffe066'],[9,11,'#ffe066'],[10,11,'#ffe066'],
+];
+defaultArt.forEach(([x,y,c]) => {
+  frameData[0][y*GRID+x] = c;
+});
+fullRender();
+renderThumb(0);
+
+// ================================================================
+//  STATUS BAR — live clock
+// ================================================================
+setInterval(() => {
+  const now = new Date();
+  document.getElementById('statusMsg').textContent =
+    `Canvas: ${GRID}×${GRID}px · Scale: ${PIXEL}x · Frame ${currentFrame+1}/${frameData.length} · ${now.toLocaleTimeString()}`;
+}, 1000);
+</script>
+
+</body>
+</html>
